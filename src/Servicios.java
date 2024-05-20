@@ -1,4 +1,6 @@
 import utils.CSVReader;
+import java.util.ArrayList;
+
 
 /**
  * NO modificar la interfaz de esta clase ni sus métodos públicos.
@@ -10,8 +12,7 @@ public class Servicios {
     /*
      * Expresar la complejidad temporal del constructor.
      */
-    public Servicios(String pathProcesadores, String pathTareas)
-    {
+    public Servicios(String pathProcesadores, String pathTareas){
         CSVReader reader = new CSVReader();
         reader.readProcessors(pathProcesadores);
         reader.readTasks(pathTareas);
@@ -20,16 +21,22 @@ public class Servicios {
     /*
      * Expresar la complejidad temporal del servicio 1.
      */
-    public Tarea servicio1(String ID) {	}
+    public Tarea servicio1(String ID) {
+        return new Tarea();
+    }
 
     /*
      * Expresar la complejidad temporal del servicio 2.
      */
-    public List<Tarea> servicio2(boolean esCritica) {}
+    public ArrayList<Tarea> servicio2(boolean esCritica) {
+        return new ArrayList<>();
+    }
 
     /*
      * Expresar la complejidad temporal del servicio 3.
      */
-    public List<Tarea> servicio3(int prioridadInferior, int prioridadSuperior) {}
+    public ArrayList<Tarea> servicio3(int prioridadInferior, int prioridadSuperior) {
+        return new ArrayList<>();
+    }
 
 }
