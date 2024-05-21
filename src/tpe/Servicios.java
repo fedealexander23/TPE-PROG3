@@ -3,7 +3,7 @@ package tpe;
 import utils.CSVReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.LinkedList;
 
 
 /**
@@ -15,9 +15,7 @@ public class Servicios {
 
     HashMap<String, Tarea> tareas;
 
-    /*
-     * Expresar la complejidad temporal del constructor.
-     */
+    //COMPLEJIDAD O(N) YA QUE O(N) + O(N);
     public Servicios(String pathProcesadores, String pathTareas) {
         CSVReader reader = new CSVReader();
         reader.readTasks(pathTareas);
@@ -25,18 +23,15 @@ public class Servicios {
         tareas = new HashMap<>(reader.getTareas());
     }
 
-    /*
-     * Expresar la complejidad temporal del servicio 1.
-     */
 
-    // Servicio 1: Obtener toda la información de la tarea asociada a un ID dado
+    //COMPLEJIDAD O(1);
     public Tarea servicio1(String ID) {
         return tareas.get(ID);
     }
 
-    // Servicio 2: Obtener el listado de tareas críticas o no críticas según el parámetro esCritica
-    public ArrayList<Tarea> servicio2(boolean esCritica) {
-        ArrayList<Tarea> tareasFiltradas = new ArrayList<>();
+    //COMPLEJIDAD O(N) EN DONDE "N" VA A SER EL NUMERO TOTAL DE TAREAS;
+    public LinkedList<Tarea> servicio2(boolean esCritica) {
+        LinkedList<Tarea> tareasFiltradas = new LinkedList<>();
         for (Tarea tarea : tareas.values()) {
             if (tarea.isCritica() == esCritica) {
                 tareasFiltradas.add(tarea);
@@ -45,9 +40,9 @@ public class Servicios {
         return tareasFiltradas;
     }
 
-    // Servicio 3: Obtener todas las tareas entre dos niveles de prioridad dados
-    public ArrayList<Tarea> servicio3(int prioridadInferior, int prioridadSuperior) {
-        ArrayList<Tarea> tareasEnRango = new ArrayList<>();
+    //COMPLEJIDAD O(N) EN DONDE "N" VA A SER EL NUMERO TOTAL DE TAREAS;
+    public LinkedList<Tarea> servicio3(int prioridadInferior, int prioridadSuperior) {
+        LinkedList<Tarea> tareasEnRango = new LinkedList<>();
         for (Tarea tarea : tareas.values()) {
             int prioridad = tarea.getPrioridad();
             if (prioridad >= prioridadInferior && prioridad <= prioridadSuperior) {
