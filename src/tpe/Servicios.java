@@ -14,19 +14,25 @@ import java.util.LinkedList;
 public class Servicios {
 
     HashMap<String, Tarea> tareas;
+    HashMap<String, Procesadores> procesadores;
 
-    //COMPLEJIDAD O(N) YA QUE O(N) + O(N);
+    //COMPLEJIDAD O(N) YA QUE O(M+N) = O(N);
     public Servicios(String pathProcesadores, String pathTareas) {
         CSVReader reader = new CSVReader();
         reader.readTasks(pathTareas);
         reader.readProcessors(pathProcesadores);
         tareas = new HashMap<>(reader.getTareas());
+        procesadores = new HashMap<>(reader.getProcesadores());
     }
 
 
     //COMPLEJIDAD O(1);
     public Tarea servicio1(String ID) {
         return tareas.get(ID);
+    }
+
+    public Procesadores servicio1p(String ID) {
+        return procesadores.get(ID);
     }
 
     //COMPLEJIDAD O(N) EN DONDE "N" VA A SER EL NUMERO TOTAL DE TAREAS;

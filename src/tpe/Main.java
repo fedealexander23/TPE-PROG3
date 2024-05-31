@@ -10,7 +10,7 @@ public class Main {
                 "./src/datasets/Procesadores.csv",
                 "./src/datasets/Tareas.csv");
 
-        System.out.println(servicios.servicio3(1,58));
+        System.out.println(servicios.servicio1p("P1"));
 
 //        // Ejemplo de uso de los servicios
 //        Tarea tarea = servicios.servicio1("T1");
