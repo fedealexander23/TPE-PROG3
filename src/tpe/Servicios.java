@@ -1,8 +1,9 @@
 package tpe;
 
 import utils.CSVReader;
-import java.util.ArrayList;
+
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 
@@ -13,8 +14,9 @@ import java.util.LinkedList;
  */
 public class Servicios {
 
-    HashMap<String, Tarea> tareas;
-    HashMap<String, Procesadores> procesadores;
+    private HashMap<String, Tarea> tareas;
+    private HashMap<String, Procesador> procesadores;
+
 
     //COMPLEJIDAD O(N) YA QUE O(M+N) = O(N);
     public Servicios(String pathProcesadores, String pathTareas) {
@@ -31,7 +33,7 @@ public class Servicios {
         return tareas.get(ID);
     }
 
-    public Procesadores servicio1p(String ID) {
+    public Procesador servicio1p(String ID) {
         return procesadores.get(ID);
     }
 
@@ -58,4 +60,70 @@ public class Servicios {
         return tareasEnRango;
     }
 
+    public void asignarTareasBacktracking() {
+
+        HashMap<String,LinkedList<Tarea>> mejorAsignacion = new HashMap<>();
+        HashMap<String,LinkedList<Tarea>> asignacionActual = new HashMap<>();
+
+        LinkedList<Tarea> tareasDisponibles = new LinkedList<>(tareas.values());
+
+        asignarTareasRecursivo(mejorAsignacion, asignacionActual, tareasDisponibles);
+        int menorTiempoFinal = calcularTiempoFinal(mejorAsignacion);
+        System.out.println(menorTiempoFinal);
+    }
+
+    private void asignarTareasRecursivo(HashMap<String, LinkedList<Tarea>> mejorAsignacion,
+                                       HashMap<String, LinkedList<Tarea>> asignacionActual,
+                                       LinkedList<Tarea> tareasDisponibles) {
+
+        if (tareasDisponibles.isEmpty()) { //Si no hay mas tares
+            int tiempoFinal = calcularTiempoFinal(asignacionActual); // Calculo el tiempo
+            if (mejorAsignacion.isEmpty() || tiempoFinal < calcularTiempoFinal(mejorAsignacion)) {
+                mejorAsignacion.clear();
+
+                // Asignamos manualmente nuestro HashMap asignacionActual a mejorAsignacion
+                // para guarda los valores de forma independiente, evitando cualquier posible
+                // interferencia entre las dos estructuras de datos.
+
+                for (HashMap.Entry<String, LinkedList<Tarea>> entry : asignacionActual.entrySet()) {
+                    LinkedList<Tarea> tareasClonadas = new LinkedList<>(entry.getValue());
+                    mejorAsignacion.put(entry.getKey(), tareasClonadas);
+                }
+            }
+        }
+        else {
+            for (Procesador procesador : procesadores.values()) {
+
+                // AGARRAMOS LA TAREA Y LA ELIMINAMOS DE LA LISTA DE TAREAS DISPONIBLES
+                Tarea tareaAsignada = tareasDisponibles.poll();
+
+                // Obtener el ID del procesador
+                String idProcesador = procesador.getId_procesador();
+
+                // Obtener la lista de tareas asignadas al procesador o crear una nueva lista si no existe
+                LinkedList<Tarea> tareasAsignadas = asignacionActual.get(idProcesador);
+                if (tareasAsignadas == null) {
+                    tareasAsignadas = new LinkedList<>();
+                    asignacionActual.put(idProcesador, tareasAsignadas);
+                }
+                // Agregar la tarea a la lista de tareas asignadas al procesador
+                tareasAsignadas.add(tareaAsignada);
+
+                asignarTareasRecursivo(mejorAsignacion, asignacionActual, tareasDisponibles);
+
+                asignacionActual.get(idProcesador).removeLast();
+                tareasDisponibles.addFirst(tareaAsignada);
+            }
+        }
+    }
+
+    private int calcularTiempoFinal(HashMap<String, LinkedList<Tarea>> asignacion) {
+        int tiempoFinal = 0;
+        for (LinkedList<Tarea> tareasProcesador : asignacion.values()) {
+            int tiempoProcesador = tareasProcesador.stream().mapToInt(Tarea::getTiempoEjecucion).sum();
+            tiempoFinal = Math.max(tiempoFinal, tiempoProcesador);
+        }
+        return tiempoFinal;
+    }
+    
 }

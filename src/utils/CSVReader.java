@@ -1,6 +1,6 @@
     package utils;
 
-    import tpe.Procesadores;
+    import tpe.Procesador;
     import tpe.Tarea;
 
     import java.io.BufferedReader;
@@ -14,7 +14,7 @@
     public class CSVReader {
 
         private HashMap<String, Tarea> tareas;
-        private HashMap<String, Procesadores> procesadores;
+        private HashMap<String, Procesador> procesadores;
 
         public CSVReader() {
             this.tareas = new HashMap<>();
@@ -60,12 +60,12 @@
                 Boolean refrigerado = Boolean.parseBoolean(line[2].trim());
                 Integer anio = Integer.parseInt(line[3].trim());
                 // Aca instanciar lo que necesiten en base a los datos leidos
-                Procesadores procesador = new Procesadores(id,codigo,refrigerado,anio);
+                Procesador procesador = new Procesador(id,codigo,refrigerado,anio);
                 this.procesadores.put(id,procesador);
             }
         }
 
-        public HashMap<String, Procesadores> getProcesadores(){
+        public HashMap<String, Procesador> getProcesadores(){
             return new HashMap<>(procesadores);
         }
 
