@@ -39,12 +39,13 @@ public class Tarea {
 
     @Override
     public String toString() {
-        return "Tarea{" +
-                "id_tarea='" + id_tarea + '\'' +
-                ", nombre_tarea='" + nombre_tarea + '\'' +
-                ", tiempo_ejecucion=" + tiempo_ejecucion +
-                ", es_critica=" + es_critica +
-                ", nivel_prioridad=" + nivel_prioridad +
-                '}';
+        return id_tarea + " " + tiempo_ejecucion + " " + isCritica();
+//        return "Tarea{" +
+//                "id_tarea='" + id_tarea + '\'' +
+////                ", nombre_tarea='" + nombre_tarea + '\'' +
+////                ", tiempo_ejecucion=" + tiempo_ejecucion +
+////                ", es_critica=" + es_critica +
+////                ", nivel_prioridad=" + nivel_prioridad +
+////                '}';
     }
 }

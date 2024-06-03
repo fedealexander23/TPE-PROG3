@@ -60,23 +60,32 @@ public class Servicios {
         return tareasEnRango;
     }
 
-    public void asignarTareasBacktracking() {
-
-        HashMap<String,LinkedList<Tarea>> mejorAsignacion = new HashMap<>();
-        HashMap<String,LinkedList<Tarea>> asignacionActual = new HashMap<>();
+    public void asignarTareasBacktracking(int tiempoRefrigerado, int maxCriticas) {
+        HashMap<String, LinkedList<Tarea>> mejorAsignacion = new HashMap<>();
+        HashMap<String, LinkedList<Tarea>> asignacionActual = new HashMap<>();
 
         LinkedList<Tarea> tareasDisponibles = new LinkedList<>(tareas.values());
 
-        asignarTareasRecursivo(mejorAsignacion, asignacionActual, tareasDisponibles);
+        asignarTareasRecursivo(mejorAsignacion, asignacionActual, tareasDisponibles, tiempoRefrigerado, maxCriticas);
         int menorTiempoFinal = calcularTiempoFinal(mejorAsignacion);
         System.out.println(menorTiempoFinal);
+
+        Iterator itAsignacion = mejorAsignacion.values().iterator();
+        for (String proc: mejorAsignacion.keySet()) {
+            System.out.println(proc);
+            if (itAsignacion.hasNext()){
+                System.out.println(itAsignacion.next().toString());
+            }
+        }
+
     }
 
     private void asignarTareasRecursivo(HashMap<String, LinkedList<Tarea>> mejorAsignacion,
-                                       HashMap<String, LinkedList<Tarea>> asignacionActual,
-                                       LinkedList<Tarea> tareasDisponibles) {
+                                        HashMap<String, LinkedList<Tarea>> asignacionActual,
+                                        LinkedList<Tarea> tareasDisponibles, int tiempoRefrigerado,
+                                        int maxCritica) {
 
-        if (tareasDisponibles.isEmpty()) { //Si no hay mas tares
+        if (tareasDisponibles.isEmpty()) { // Si no hay más tareas
             int tiempoFinal = calcularTiempoFinal(asignacionActual); // Calculo el tiempo
             if (mejorAsignacion.isEmpty() || tiempoFinal < calcularTiempoFinal(mejorAsignacion)) {
                 mejorAsignacion.clear();
@@ -90,29 +99,39 @@ public class Servicios {
                     mejorAsignacion.put(entry.getKey(), tareasClonadas);
                 }
             }
-        }
-        else {
+        } else {
             for (Procesador procesador : procesadores.values()) {
+                // Obtener el ID del procesador
+                String idProcesador = procesador.getId_procesador();
 
                 // AGARRAMOS LA TAREA Y LA ELIMINAMOS DE LA LISTA DE TAREAS DISPONIBLES
                 Tarea tareaAsignada = tareasDisponibles.poll();
 
-                // Obtener el ID del procesador
-                String idProcesador = procesador.getId_procesador();
+                if (tareaAsignada != null) {
+                    // Obtener la lista de tareas asignadas al procesador o crear una nueva lista si no existe
+                    LinkedList<Tarea> tareasAsignadas = asignacionActual.get(idProcesador);
 
-                // Obtener la lista de tareas asignadas al procesador o crear una nueva lista si no existe
-                LinkedList<Tarea> tareasAsignadas = asignacionActual.get(idProcesador);
-                if (tareasAsignadas == null) {
-                    tareasAsignadas = new LinkedList<>();
-                    asignacionActual.put(idProcesador, tareasAsignadas);
+                    if (tareasAsignadas == null) {
+                        tareasAsignadas = new LinkedList<>();
+                        asignacionActual.put(idProcesador, tareasAsignadas);
+                    }
+
+                    // Verificar si se puede agregar la tarea al procesador
+                    if (puedoAgregarTarea(tareasAsignadas, procesador, tareaAsignada,
+                            tiempoRefrigerado, maxCritica)) {
+                        // Agregar la tarea a la lista de tareas asignadas al procesador
+                        tareasAsignadas.add(tareaAsignada);
+
+                        // Llamada recursiva
+                        asignarTareasRecursivo(mejorAsignacion, asignacionActual, tareasDisponibles, tiempoRefrigerado, maxCritica);
+
+                        // Deshacer la asignación
+                        tareasAsignadas.removeLast();
+                    }
+
+                    // Volver a añadir la tarea al inicio de la lista
+                    tareasDisponibles.addFirst(tareaAsignada);
                 }
-                // Agregar la tarea a la lista de tareas asignadas al procesador
-                tareasAsignadas.add(tareaAsignada);
-
-                asignarTareasRecursivo(mejorAsignacion, asignacionActual, tareasDisponibles);
-
-                asignacionActual.get(idProcesador).removeLast();
-                tareasDisponibles.addFirst(tareaAsignada);
             }
         }
     }
@@ -125,5 +144,35 @@ public class Servicios {
         }
         return tiempoFinal;
     }
-    
+
+    private boolean puedoAgregarTarea(LinkedList<Tarea> listaTareas, Procesador procesador,
+                                      Tarea tareaAsignada, int tiempoRefrigerado, int maxCritica) {
+        if (listaTareas == null) {
+            listaTareas = new LinkedList<>();
+        }
+
+        int contCritica = 0;
+        int tiempoTotal = 0;
+
+        for (Tarea tarea : listaTareas) {
+            tiempoTotal += tarea.getTiempoEjecucion();
+            if (tarea.isCritica()) {
+                contCritica++;
+            }
+        }
+
+        // Verificar si el procesador puede manejar una tarea crítica adicional
+        if (tareaAsignada.isCritica() && contCritica >= maxCritica) {
+            return false;
+        }
+
+        // Verificar si el procesador no refrigerado puede manejar el tiempo adicional
+        if (!procesador.getEsta_refrigerado() && (tiempoTotal + tareaAsignada.getTiempoEjecucion() > tiempoRefrigerado)) {
+            return false;
+        }
+
+        return true;
+    }
+
+
 }
