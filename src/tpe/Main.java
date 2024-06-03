@@ -10,7 +10,7 @@ public class Main {
                 "./src/datasets/Procesadores.csv",
                 "./src/datasets/Tareas.csv");
 
-        servicios.asignarTareasBacktracking(100,    2);
+        servicios.asignarTareasBacktracking(160,    2);
 
 //        // Ejemplo de uso de los servicios
 //        Tarea tarea = servicios.servicio1("T1");

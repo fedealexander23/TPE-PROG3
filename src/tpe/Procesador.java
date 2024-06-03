@@ -38,6 +38,35 @@ public class Procesador {
         return new LinkedList<>(tares);
     }
 
+    public boolean puedoAgregarTarea(LinkedList<Tarea> listaTareas,
+                                      Tarea tareaAsignada, int tiempoRefrigerado, int maxCritica) {
+        if (listaTareas == null) {
+            listaTareas = new LinkedList<>();
+        }
+
+        int contCritica = 0;
+        int tiempoTotal = 0;
+
+        for (Tarea tarea : listaTareas) {
+            tiempoTotal += tarea.getTiempoEjecucion();
+            if (tarea.isCritica()) {
+                contCritica++;
+            }
+        }
+
+        // Verificar si el procesador puede manejar una tarea crítica adicional
+        if (tareaAsignada.isCritica() && contCritica >= maxCritica) {
+            return false;
+        }
+
+        // Verificar si el procesador no refrigerado puede manejar el tiempo adicional
+        if (!this.getEsta_refrigerado() && (tiempoTotal + tareaAsignada.getTiempoEjecucion() > tiempoRefrigerado)) {
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
     public String toString() {
         return "Procesador{" +
