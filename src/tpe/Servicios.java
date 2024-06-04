@@ -2,6 +2,7 @@ package tpe;
 
 import utils.CSVReader;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -87,6 +88,7 @@ public class Servicios {
 
         if (tareasDisponibles.isEmpty()) { // Si no hay más tareas
                 mejorAsignacion.clear();
+
                 // Asignamos manualmente nuestro HashMap asignacionActual a mejorAsignacion
                 // para guarda los valores de forma independiente, evitando cualquier posible
                 // interferencia entre las dos estructuras de datos.
@@ -96,14 +98,14 @@ public class Servicios {
                 }
         } else {
             for (Procesador procesador : procesadores.values()) {
-                // Obtener el ID del procesador
+                // Obtenenemos el ID del procesador
                 String idProcesador = procesador.getId_procesador();
 
-                // AGARRAMOS LA TAREA Y LA ELIMINAMOS DE LA LISTA DE TAREAS DISPONIBLES
+                // agarramos la tarea, la asignamos a una variable y la borrramos de la lista de tareasDisponibles
                 Tarea tareaAsignada = tareasDisponibles.poll();
 
                 if (tareaAsignada != null) {
-                    // Obtener la lista de tareas asignadas al procesador o crear una nueva lista si no existe
+                    // Obtenemos la lista de tareas asignadas al procesador o creamos una nueva lista si no existe
                     LinkedList<Tarea> tareasAsignadas = asignacionActual.get(idProcesador);
 
                     if (tareasAsignadas == null) {
@@ -111,21 +113,25 @@ public class Servicios {
                         asignacionActual.put(idProcesador, tareasAsignadas);
                     }
 
-                    // Verificar si se puede agregar la tarea al procesador
+                    // Verificamos si se puede agregar la tarea al procesador en base a las restricciones
                     if (procesador.puedoAgregarTarea(tareasAsignadas, tareaAsignada,
                             tiempoRefrigerado, maxCritica)) {
-                        // Agregar la tarea a la lista de tareas asignadas al procesador
+
+                        // Agregamos la tarea a la lista de tareas asignadas al procesador
                         tareasAsignadas.add(tareaAsignada);
+
+                        // PODA: verificamos si el tiempo de la asignacion actual es menor
+                        // que el tiempo de la mejor asignacion
                         if (mejorAsignacion.isEmpty() || calcularTiempoFinal(asignacionActual)
                                 < calcularTiempoFinal(mejorAsignacion)) {
-                            // Llamada recursiva
+
                             asignarTareasRecursivo(mejorAsignacion, asignacionActual, tareasDisponibles, tiempoRefrigerado, maxCritica);
                         }
-                        // Deshacer la asignación
+
                         tareasAsignadas.removeLast();
                     }
 
-                    // Volver a añadir la tarea al inicio de la lista
+                    // devolvemos la tarea a la lista
                     tareasDisponibles.addFirst(tareaAsignada);
                 }
             }
@@ -135,10 +141,67 @@ public class Servicios {
     private int calcularTiempoFinal(HashMap<String, LinkedList<Tarea>> asignacion) {
         int tiempoFinal = 0;
         for (LinkedList<Tarea> tareasProcesador : asignacion.values()) {
+            // calculamos el tiempo de cada procesador del HashMap solucion
             int tiempoProcesador = tareasProcesador.stream().mapToInt(Tarea::getTiempoEjecucion).sum();
+            // comparamos los tiempos de los procesadores y nos quedamos con el mas alto
             tiempoFinal = Math.max(tiempoFinal, tiempoProcesador);
         }
         return tiempoFinal;
     }
+
+    public void asignarTareasGreedy(int tiempoRefrigerado, int maxCriticas){
+
+        HashMap<String, LinkedList<Tarea>> resultado = new HashMap<>();
+        LinkedList<Tarea> tareasDisponibles = new LinkedList<>(tareas.values());
+        Collections.sort(tareasDisponibles);
+
+        for (Tarea tarea: tareasDisponibles) {
+            if (tarea != null) {
+                Procesador mejorProcesador = null;
+
+                for (Procesador procesador: procesadores.values()) {
+                    // verificamos si el procesador puede asignar la tarea en base a las restricciones
+                    if (procesador.puedoAgregarTarea(resultado.get(procesador.getId_procesador()), tarea, tiempoRefrigerado, maxCriticas)){
+                        int tiempoActualProc = calcularTiempoProcesador(resultado.get(procesador.getId_procesador()));
+                        // verificamos si el tiempo del actual procesador es mejor que el tiempo del mejor procesador
+                        if (mejorProcesador == null || tiempoActualProc <
+                                calcularTiempoProcesador(resultado.get(mejorProcesador.getId_procesador()))){
+                            mejorProcesador = procesador;
+                        }
+                    }
+                }
+
+                // Obtenemos la lista de tareas asignadas al procesador o creamos una nueva lista si no existe
+                if (mejorProcesador != null){
+                    LinkedList<Tarea> tareasAsignadas = resultado.get(mejorProcesador.getId_procesador());
+
+                    if (tareasAsignadas == null) {
+                        tareasAsignadas = new LinkedList<>();
+                        resultado.put(mejorProcesador.getId_procesador(), tareasAsignadas);
+                    }
+                    tareasAsignadas.add(tarea);
+                }
+            }
+        }
+
+        int menorTiempoFinal = calcularTiempoFinal(resultado);
+        System.out.println("Tiempo maximo de ejecucion: " + menorTiempoFinal);
+
+        Iterator itAsignacion = resultado.values().iterator();
+        for (Procesador proc: procesadores.values()) {
+            System.out.println(proc.getId_procesador());
+            if (itAsignacion.hasNext()){
+                System.out.println(itAsignacion.next().toString());
+            }
+        }
+    }
+
+    private int calcularTiempoProcesador(LinkedList<Tarea> listaTarea) {
+        if (listaTarea == null){ return 0; }
+        else {
+            return listaTarea.stream().mapToInt(Tarea::getTiempoEjecucion).sum();
+        }
+    }
+
 
 }

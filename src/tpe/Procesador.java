@@ -7,7 +7,7 @@ public class Procesador {
     private String codigo_procesador;
     private Boolean esta_refrigerado;
     private Integer ano_funcionamiento;
-    private LinkedList<Tarea> tares;
+    private LinkedList<Tarea> tareas;
 
 
     public Procesador(String id_procesador, String codigo_procesador, Boolean esta_refrigerado, Integer ano_funcionamiento) {
@@ -15,7 +15,7 @@ public class Procesador {
         this.codigo_procesador = codigo_procesador;
         this.esta_refrigerado = esta_refrigerado;
         this.ano_funcionamiento = ano_funcionamiento;
-        this.tares = new LinkedList<>();
+        this.tareas = new LinkedList<>();
     }
 
     public String getId_procesador() {
@@ -34,8 +34,16 @@ public class Procesador {
         return ano_funcionamiento;
     }
 
-    public LinkedList<Tarea> getTares(){
-        return new LinkedList<>(tares);
+    public LinkedList<Tarea> getTareas(){
+        return new LinkedList<>(tareas);
+    }
+
+    public int getTiempo(){
+        int cont = 0;
+        for (Tarea t: tareas) {
+            cont += t.getTiempoEjecucion();
+        }
+        return cont;
     }
 
     public boolean puedoAgregarTarea(LinkedList<Tarea> listaTareas,
@@ -54,12 +62,12 @@ public class Procesador {
             }
         }
 
-        // Verificar si el procesador puede manejar una tarea crítica adicional
+        // Verificamos si el procesador no supera la cantidad de tareas criticas
         if (tareaAsignada.isCritica() && contCritica >= maxCritica) {
             return false;
         }
 
-        // Verificar si el procesador no refrigerado puede manejar el tiempo adicional
+        // Verificamos si el procesador es no refrigerado y si esta dentro del parametro necesario
         if (!this.getEsta_refrigerado() && (tiempoTotal + tareaAsignada.getTiempoEjecucion() > tiempoRefrigerado)) {
             return false;
         }
@@ -74,7 +82,7 @@ public class Procesador {
                 ", codigo_procesador='" + codigo_procesador + '\'' +
                 ", esta_refrigerado=" + esta_refrigerado +
                 ", ano_funcionamiento=" + ano_funcionamiento +
-                ", tares=" + tares +
+                ", tares=" + tareas +
                 '}';
     }
 }
