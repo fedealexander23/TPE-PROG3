@@ -17,6 +17,7 @@ public class Servicios {
 
     private HashMap<String, Tarea> tareas;
     private HashMap<String, Procesador> procesadores;
+    private int cantEstados;
 
 
     //COMPLEJIDAD O(N) YA QUE O(M+N) = O(N);
@@ -26,6 +27,7 @@ public class Servicios {
         reader.readProcessors(pathProcesadores);
         tareas = new HashMap<>(reader.getTareas());
         procesadores = new HashMap<>(reader.getProcesadores());
+        this.cantEstados = 0;
     }
 
 
@@ -64,20 +66,26 @@ public class Servicios {
     public void asignarTareasBacktracking(int tiempoRefrigerado, int maxCriticas) {
         HashMap<String, LinkedList<Tarea>> mejorAsignacion = new HashMap<>();
         HashMap<String, LinkedList<Tarea>> asignacionActual = new HashMap<>();
+        int tiempoProc = 0;
 
         LinkedList<Tarea> tareasDisponibles = new LinkedList<>(tareas.values());
 
         asignarTareasRecursivo(mejorAsignacion, asignacionActual, tareasDisponibles, tiempoRefrigerado, maxCriticas);
         int menorTiempoFinal = calcularTiempoFinal(mejorAsignacion);
-        System.out.println(menorTiempoFinal);
 
+        System.out.println("BACKTRACKING");
         Iterator itAsignacion = mejorAsignacion.values().iterator();
         for (String proc: mejorAsignacion.keySet()) {
             System.out.println(proc);
             if (itAsignacion.hasNext()){
                 System.out.println(itAsignacion.next().toString());
+
             }
+            System.out.println("Tiempo de procesador " + proc + ": " + this.calcularTiempoProcesador(mejorAsignacion.get(proc)));
+            System.out.println();
         }
+        System.out.println("Tiempo maximo de ejecucion: " + menorTiempoFinal);
+        System.out.println("Cantidad de estados obtenidos: " + cantEstados);
 
     }
 
@@ -85,17 +93,17 @@ public class Servicios {
                                         HashMap<String, LinkedList<Tarea>> asignacionActual,
                                         LinkedList<Tarea> tareasDisponibles, int tiempoRefrigerado,
                                         int maxCritica) {
+        cantEstados++;
 
         if (tareasDisponibles.isEmpty()) { // Si no hay más tareas
-                mejorAsignacion.clear();
-
-                // Asignamos manualmente nuestro HashMap asignacionActual a mejorAsignacion
-                // para guarda los valores de forma independiente, evitando cualquier posible
-                // interferencia entre las dos estructuras de datos.
-                for (HashMap.Entry<String, LinkedList<Tarea>> entry : asignacionActual.entrySet()) {
-                    LinkedList<Tarea> tareasClonadas = new LinkedList<>(entry.getValue());
-                    mejorAsignacion.put(entry.getKey(), tareasClonadas);
-                }
+            mejorAsignacion.clear();
+            // Asignamos manualmente nuestro HashMap asignacionActual a mejorAsignacion
+            // para guarda los valores de forma independiente, evitando cualquier posible
+            // interferencia entre las dos estructuras de datos.
+            for (HashMap.Entry<String, LinkedList<Tarea>> entry : asignacionActual.entrySet()) {
+                LinkedList<Tarea> tareasClonadas = new LinkedList<>(entry.getValue());
+                mejorAsignacion.put(entry.getKey(), tareasClonadas);
+            }
         } else {
             for (Procesador procesador : procesadores.values()) {
                 // Obtenenemos el ID del procesador
@@ -124,7 +132,7 @@ public class Servicios {
                         // que el tiempo de la mejor asignacion
                         if (mejorAsignacion.isEmpty() || calcularTiempoFinal(asignacionActual)
                                 < calcularTiempoFinal(mejorAsignacion)) {
-
+                            cantEstados ++;
                             asignarTareasRecursivo(mejorAsignacion, asignacionActual, tareasDisponibles, tiempoRefrigerado, maxCritica);
                         }
 
@@ -140,6 +148,7 @@ public class Servicios {
 
     private int calcularTiempoFinal(HashMap<String, LinkedList<Tarea>> asignacion) {
         int tiempoFinal = 0;
+
         for (LinkedList<Tarea> tareasProcesador : asignacion.values()) {
             // calculamos el tiempo de cada procesador del HashMap solucion
             int tiempoProcesador = tareasProcesador.stream().mapToInt(Tarea::getTiempoEjecucion).sum();
@@ -154,6 +163,7 @@ public class Servicios {
         HashMap<String, LinkedList<Tarea>> resultado = new HashMap<>();
         LinkedList<Tarea> tareasDisponibles = new LinkedList<>(tareas.values());
         Collections.sort(tareasDisponibles);
+        cantEstados = 0;
 
         for (Tarea tarea: tareasDisponibles) {
             if (tarea != null) {
@@ -166,6 +176,7 @@ public class Servicios {
                         // verificamos si el tiempo del actual procesador es mejor que el tiempo del mejor procesador
                         if (mejorProcesador == null || tiempoActualProc <
                                 calcularTiempoProcesador(resultado.get(mejorProcesador.getId_procesador()))){
+                            cantEstados++;
                             mejorProcesador = procesador;
                         }
                     }
@@ -185,7 +196,7 @@ public class Servicios {
         }
 
         int menorTiempoFinal = calcularTiempoFinal(resultado);
-        System.out.println("Tiempo maximo de ejecucion: " + menorTiempoFinal);
+        System.out.println("GREEDY");
 
         Iterator itAsignacion = resultado.values().iterator();
         for (Procesador proc: procesadores.values()) {
@@ -193,7 +204,12 @@ public class Servicios {
             if (itAsignacion.hasNext()){
                 System.out.println(itAsignacion.next().toString());
             }
+            System.out.println("Tiempo de procesador " + proc.getId_procesador() + ": " +this.calcularTiempoProcesador(resultado.get(proc.getId_procesador())));
+            System.out.println();
         }
+
+        System.out.println("Tiempo maximo de ejecucion: " + menorTiempoFinal);
+        System.out.println("Cantidad de estados obtenidos: " + cantEstados);
     }
 
     private int calcularTiempoProcesador(LinkedList<Tarea> listaTarea) {

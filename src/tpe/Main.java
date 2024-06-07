@@ -9,8 +9,9 @@ public class Main {
         Servicios servicios = new Servicios(
                 "./src/datasets/Procesadores.csv",
                 "./src/datasets/Tareas.csv");
-
-        servicios.asignarTareasGreedy(130,2);
+        servicios.asignarTareasBacktracking(400,2    );
+        System.out.println();
+        servicios.asignarTareasGreedy(400,2);
 
 //        // Ejemplo de uso de los servicios
 //        Tarea tarea = servicios.servicio1("T1");
