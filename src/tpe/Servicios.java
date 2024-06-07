@@ -56,18 +56,31 @@ public class Servicios {
         LinkedList<Tarea> tareasEnRango = new LinkedList<>();
         for (Tarea tarea : tareas.values()) {
             int prioridad = tarea.getPrioridad();
-            if (prioridad >= prioridadInferior && prioridad <= prioridadSuperior) {
+            if (prioridad > prioridadInferior && prioridad < prioridadSuperior) {
                 tareasEnRango.add(tarea);
             }
         }
         return tareasEnRango;
     }
 
+
+    // Creamos 2 HashMap para contener la solucion parcial y la mejor solucion al momento de la recursion,
+    // tambien creamos una lista de tareas disponibles de la cual vamos a extraer la tarea a agregar en la solucion parcial.
+    // Una vez dentro del metodo recursivo, chequeamos de que nuestra lista de tareas no este vacia, de ser asi
+    // recorremos los procesadores controlando las restricciones solicitadas al momento de asignar las tarea.
+    // Si el procesador pasa las restricciones para agregar la tarea, agregamos la misma a la asignacion actual
+    // y luego controlamos a modo de PODA que el tiempo de nuestra asignacion actual no exceda el tiempo total
+    // de nuestra mejor solucion. Si esto se cumple, llamamos recursivamente al metodo en busca de seguir
+    // agregando tareas de la misma manera. Una vez que no haya mas tareas, se generara un estado solucion parcial
+    // el cual se guardara si el tiempo maximo de ejecucion es menor al tiempo maximo de ejecucion de la mejor solucion.
+    // Como necesitamos generar todos los estados solucion posibles, al momento de volver de la recursion, sacamos
+    // de la asignacion parcial la ultima tarea y la devolvemos a la lista de tareas disponibles para poder asignarla
+    // a otro procesador. De esta forma podremos chequar todas las tareas en todos los procesadores y poder conseguir
+    // la mejor solucion.
+
     public void asignarTareasBacktracking(int tiempoRefrigerado, int maxCriticas) {
         HashMap<String, LinkedList<Tarea>> mejorAsignacion = new HashMap<>();
         HashMap<String, LinkedList<Tarea>> asignacionActual = new HashMap<>();
-        int tiempoProc = 0;
-
         LinkedList<Tarea> tareasDisponibles = new LinkedList<>(tareas.values());
 
         asignarTareasRecursivo(mejorAsignacion, asignacionActual, tareasDisponibles, tiempoRefrigerado, maxCriticas);
@@ -158,6 +171,11 @@ public class Servicios {
         return tiempoFinal;
     }
 
+    // Creamos un HashMap en el cual vamos a asignar nuestro resultado. Ademas creamos una lista de tareas disponibles
+    // ordenadas de mayor a menor por tiempo de ejecucion. Una vez obtenida la lista, por cada tarea, recorremos
+    // los procesadores y verificamos si el procesador puede asignar la tarea en base a las restricciones.
+    // Luego buscamos el procesador que tenga menor tiempo de ejecucion total para poder asignarle la tarea.
+    // Una vez encontrado el procesador mas apto, asignamos la tarea y volvemos a recorrer las tareas pendientes.
     public void asignarTareasGreedy(int tiempoRefrigerado, int maxCriticas){
 
         HashMap<String, LinkedList<Tarea>> resultado = new HashMap<>();
