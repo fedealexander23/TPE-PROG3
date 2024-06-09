@@ -87,19 +87,23 @@ public class Servicios {
         int menorTiempoFinal = calcularTiempoFinal(mejorAsignacion);
 
         System.out.println("BACKTRACKING");
-        Iterator itAsignacion = mejorAsignacion.values().iterator();
-        for (String proc: mejorAsignacion.keySet()) {
-            System.out.println(proc);
-            if (itAsignacion.hasNext()){
-                System.out.println(itAsignacion.next().toString());
+        if (mejorAsignacion.isEmpty()){
+            System.out.println("No se pueden asignar todas las tareas, por motivos de restricciones");
+        }else {
+            Iterator itAsignacion = mejorAsignacion.values().iterator();
+            for (String proc: mejorAsignacion.keySet()) {
+                System.out.println(proc);
+                if (itAsignacion.hasNext()){
+                    System.out.println(itAsignacion.next().toString());
 
+                }
+                System.out.println("Tiempo de procesador " + proc + ": " + this.calcularTiempoProcesador(mejorAsignacion.get(proc)));
+                System.out.println();
             }
-            System.out.println("Tiempo de procesador " + proc + ": " + this.calcularTiempoProcesador(mejorAsignacion.get(proc)));
-            System.out.println();
-        }
-        System.out.println("Tiempo maximo de ejecucion: " + menorTiempoFinal);
-        System.out.println("Cantidad de estados obtenidos: " + cantEstados);
 
+            System.out.println("Tiempo maximo de ejecucion: " + menorTiempoFinal);
+            System.out.println("Cantidad de estados obtenidos: " + cantEstados);
+        }
     }
 
     private void asignarTareasRecursivo(HashMap<String, LinkedList<Tarea>> mejorAsignacion,
@@ -182,6 +186,7 @@ public class Servicios {
         LinkedList<Tarea> tareasDisponibles = new LinkedList<>(tareas.values());
         Collections.sort(tareasDisponibles);
         cantEstados = 0;
+        int cantTareasAsignadas = 0;
 
         for (Tarea tarea: tareasDisponibles) {
             if (tarea != null) {
@@ -209,6 +214,7 @@ public class Servicios {
                         resultado.put(mejorProcesador.getId_procesador(), tareasAsignadas);
                     }
                     tareasAsignadas.add(tarea);
+                    cantTareasAsignadas++;
                 }
             }
         }
@@ -216,18 +222,22 @@ public class Servicios {
         int menorTiempoFinal = calcularTiempoFinal(resultado);
         System.out.println("GREEDY");
 
-        Iterator itAsignacion = resultado.values().iterator();
-        for (Procesador proc: procesadores.values()) {
-            System.out.println(proc.getId_procesador());
-            if (itAsignacion.hasNext()){
-                System.out.println(itAsignacion.next().toString());
+        if (tareasDisponibles.size() != cantTareasAsignadas){
+            System.out.println("No se pueden asignar todas las tareas, por motivos de restricciones");
+        }else {
+            Iterator itAsignacion = resultado.values().iterator();
+            for (Procesador proc: procesadores.values()) {
+                System.out.println(proc.getId_procesador());
+                if (itAsignacion.hasNext()){
+                    System.out.println(itAsignacion.next().toString());
+                }
+                System.out.println("Tiempo de procesador " + proc.getId_procesador() + ": " +this.calcularTiempoProcesador(resultado.get(proc.getId_procesador())));
+                System.out.println();
             }
-            System.out.println("Tiempo de procesador " + proc.getId_procesador() + ": " +this.calcularTiempoProcesador(resultado.get(proc.getId_procesador())));
-            System.out.println();
-        }
 
-        System.out.println("Tiempo maximo de ejecucion: " + menorTiempoFinal);
-        System.out.println("Cantidad de estados obtenidos: " + cantEstados);
+            System.out.println("Tiempo maximo de ejecucion: " + menorTiempoFinal);
+            System.out.println("Cantidad de estados obtenidos: " + cantEstados);
+        }
     }
 
     private int calcularTiempoProcesador(LinkedList<Tarea> listaTarea) {
@@ -236,6 +246,5 @@ public class Servicios {
             return listaTarea.stream().mapToInt(Tarea::getTiempoEjecucion).sum();
         }
     }
-
 
 }
