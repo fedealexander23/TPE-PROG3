@@ -20,7 +20,7 @@ public class Servicios {
     private int cantEstados;
 
 
-    //COMPLEJIDAD O(N) YA QUE O(M+N) = O(N);
+    // Compleidad O(N) ya que O(M+N) = O(N);
     public Servicios(String pathProcesadores, String pathTareas) {
         CSVReader reader = new CSVReader();
         reader.readTasks(pathTareas);
@@ -31,7 +31,7 @@ public class Servicios {
     }
 
 
-    //COMPLEJIDAD O(1);
+    // Complejidad O(1);
     public Tarea servicio1(String ID) {
         return tareas.get(ID);
     }
@@ -51,7 +51,8 @@ public class Servicios {
         return tareasFiltradas;
     }
 
-    //COMPLEJIDAD O(N) EN DONDE "N" VA A SER EL NUMERO TOTAL DE TAREAS;
+    // Complejidad O(N) en donde "N" va s ser el numero total de tareas;
+    // Sin contar los limites inferior y superior
     public LinkedList<Tarea> servicio3(int prioridadInferior, int prioridadSuperior) {
         LinkedList<Tarea> tareasEnRango = new LinkedList<>();
         for (Tarea tarea : tareas.values()) {
@@ -62,7 +63,6 @@ public class Servicios {
         }
         return tareasEnRango;
     }
-
 
     // Creamos 2 HashMap para contener la solucion parcial y la mejor solucion al momento de la recursion,
     // tambien creamos una lista de tareas disponibles de la cual vamos a extraer la tarea a agregar en la solucion parcial.
@@ -115,7 +115,7 @@ public class Servicios {
         if (tareasDisponibles.isEmpty()) { // Si no hay más tareas
             mejorAsignacion.clear();
             // Asignamos manualmente nuestro HashMap asignacionActual a mejorAsignacion
-            // para guarda los valores de forma independiente, evitando cualquier posible
+            // para guardar los valores de forma independiente, evitando cualquier posible
             // interferencia entre las dos estructuras de datos.
             for (HashMap.Entry<String, LinkedList<Tarea>> entry : asignacionActual.entrySet()) {
                 LinkedList<Tarea> tareasClonadas = new LinkedList<>(entry.getValue());
@@ -126,7 +126,7 @@ public class Servicios {
                 // Obtenenemos el ID del procesador
                 String idProcesador = procesador.getId_procesador();
 
-                // agarramos la tarea, la asignamos a una variable y la borrramos de la lista de tareasDisponibles
+                // Agarramos la tarea, la asignamos a una variable y la borrramos de la lista de tareasDisponibles
                 Tarea tareaAsignada = tareasDisponibles.poll();
 
                 if (tareaAsignada != null) {

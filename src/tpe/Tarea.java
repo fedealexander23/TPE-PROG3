@@ -16,7 +16,6 @@ public class Tarea implements Comparable<Tarea>{
         this.nivel_prioridad = nivel_prioridad;
     }
 
-    // Métodos getters para acceder a los atributos de la tarea
     public String getId() {
         return id_tarea;
     }
@@ -40,18 +39,10 @@ public class Tarea implements Comparable<Tarea>{
     @Override
     public String toString() {
         return id_tarea + " " + tiempo_ejecucion + " " + isCritica();
-//        return "Tarea{" +
-//                "id_tarea='" + id_tarea + '\'' +
-////                ", nombre_tarea='" + nombre_tarea + '\'' +
-////                ", tiempo_ejecucion=" + tiempo_ejecucion +
-////                ", es_critica=" + es_critica +
-////                ", nivel_prioridad=" + nivel_prioridad +
-////                '}';
     }
-
     @Override
     public int compareTo(Tarea otraTarea) {
-        // Ordenar por prioridad de mayor a menor
+        // Ordenamos por prioridad de mayor a menor
         return Integer.compare(otraTarea.getTiempoEjecucion(), this.getTiempoEjecucion());
     }
 }
